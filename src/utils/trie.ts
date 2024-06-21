@@ -1,45 +1,88 @@
-import pokeJSON from "../data/pokedex.json";
-
-//const pokemon = JSON.parse(pokeJSON);
-
 class TrieNode {
   char: string;
   isEnd: boolean;
-  chars: TrieNode[];
+  chars: Map<string, TrieNode>;
 
   constructor() {
     this.char = "";
     this.isEnd = false;
-    this.chars = [];
+    this.chars = new Map();
   }
 }
 
-class Trie {
+export class Trie {
   root: TrieNode;
-  insert: (word: string) => void;
 
   constructor() {
     this.root = new TrieNode();
   }
 
+	private createNode(char: string): TrieNode {
+		return {char: char, isEnd: false, chars: new Map()}
+	}
+
   public insert(key: string) {
     let curr = this.root;
 
-    function createNode(char: string): TrieNode {
-      return { char: char, isEnd: false, chars: [] };
-    }
-
     for (let i = 0; i < key.length; i++) {
-      const index = key.charCodeAt(i) - "a".charCodeAt(0);
-      if (!curr.chars[index]) {
-        curr.chars[index] = createNode(key[i]);
-      }
+		if (!curr.chars.has(key[i])){
+			curr.chars.set(key[i], this.createNode(key[i]));
+		}
 
-      curr = curr.chars[index];
+	const node = curr.chars.get(key[i]);
+	if (node != undefined) {
+		curr = node;
+	}
 
-      if (i == key.length - 1) {
-        curr.isEnd = true;
-      }
+	if (i == key.length - 1) {
+		curr.isEnd = true;
+	}
     }
   }
+
+  public search(key: string) {
+	const results: string[] | [] = [];
+	let curr = this.root;
+	let word = "";
+
+	if (key.length < 2) {	
+		return []
+	}
+
+
+	function findWords(node: TrieNode, word: string, results: string[]) {
+		if (node == null) {
+			return;
+		}
+
+		if (results.length >= 10) {
+			return;
+		}
+
+		if (node.isEnd) {
+			results.push(word);
+		}
+
+
+		for (const c of node.chars.keys()) {
+			findWords(node.chars.get(c) as TrieNode, word + c, results);
+		}
+	}
+	
+	for (let i = 0; i < key.length; i++) {
+
+		if (!curr.chars.get(key[i])) {
+			return [];
+		}
+
+		curr = curr.chars.get(key[i]) as TrieNode;
+		word += key[i];
+
+		if (i == key.length - 1) {
+			findWords(curr, word, results);
+		}
+	}
+	return results;
 }
+}
+
