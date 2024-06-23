@@ -6,6 +6,7 @@ const AutoTrie = new Trie();
 for (let i = 0; i < pokemon.length; i++) {
   AutoTrie.insert(pokemon[i].name.english);
 }
+console.log("trie built")
 
 export default function Search() {
   const [pokemon, setPokemon] = useState("");
@@ -17,7 +18,9 @@ export default function Search() {
 		console.log(result);
 		setResults(result);
 	}
-	setResults([]);
+	if (pokemon.length < 2 ) {
+		setResults([]);
+	}
   }
 
   return (
@@ -35,9 +38,9 @@ export default function Search() {
         />
 		{results && ( 
 			<>
-			<ul className="absolute bg-white text-black my-1 p-2 w-full rounded-md">
+			<ul role="listboox" className={`absolute bg-white text-black mt-1 w-full rounded-md`}>
 				{results.map((result) => (
-					<li key={result}>{result}</li>
+					<li role="option" className="p-2" key={result}>{result}</li>
 				))}
 			</ul>
 			</>
